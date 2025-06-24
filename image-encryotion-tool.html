@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🛡️ Image Encryption Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #040406, #014344);
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      color: #ffc107;
+    }
+
+    input[type="file"] {
+      background-color: #fafafaf9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+   canvas {
+     display: block;
+     margin: 20px auto; /* ← this centers it horizontally */
+     border: 2px dashed #00e5ff;
+     border-radius: 8px;
+   }
+
+
+    #buttons {
+      margin-top: 30px;
+    }
+
+    button {
+      background: #198b95;
+      color: #fdf9f9;
+      padding: 12px 25px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0097a7;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    footer {
+      margin-top: 40px;
+      color: #aaa;
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 600px) {
+      button {
+        width: 80%;
+        margin: 10px auto;
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🖼️ Secure Your Images with Style!</h2>
+  <p>Encrypt and decrypt images using pixel value manipulation and horizontal swapping.</p>
+
+  <input type="file" id="imageInput" accept="image/*">
+  <canvas id="canvas"></canvas>
+
+  <div id="buttons">
+    <button onclick="encryptImage()">🔐 Encrypt</button>
+    <button onclick="decryptImage()">🔓 Decrypt</button>
+    <button onclick="downloadImage()">⬇️ Download</button>
+  </div>
+
+
+<script>
+  let canvas = document.getElementById('canvas');
+  let ctx = canvas.getContext('2d');
+  const KEY = 50;
+  let encryptCount = 0;
+
+  document.getElementById('imageInput').addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        canvas.style.display = 'block';
+        encryptCount = 0; // Reset counter
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  });
+
+  function swapPixelsHorizontally(imageData) {
+    const { width, height, data } = imageData;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width / 2; x++) {
+        let idx1 = (y * width + x) * 4;
+        let idx2 = (y * width + (width - x - 1)) * 4;
+        for (let i = 0; i < 4; i++) {
+          let temp = data[idx1 + i];
+          data[idx1 + i] = data[idx2 + i];
+          data[idx2 + i] = temp;
+        }
+      }
+    }
+    return imageData;
+  }
+
+  function encryptImage() {
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    // Change pixel values
+    for (let i = 0; i < data.length; i += 4) {
+      data[i]     = (data[i] + KEY) % 256;
+      data[i + 1] = (data[i + 1] + KEY) % 256;
+      data[i + 2] = (data[i + 2] + KEY) % 256;
+    }
+
+    // Swap pixels
+    swapPixelsHorizontally(imageData);
+
+    ctx.putImageData(imageData, 0, 0);
+    encryptCount++;
+    console.log("Encrypted", encryptCount, "times");
+  }
+
+  function decryptImage() {
+    if (encryptCount === 0) {
+      alert("Nothing to decrypt!");
+      return;
+    }
+
+    let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    // Reverse pixel swap
+    swapPixelsHorizontally(imageData);
+
+    // Reverse pixel values
+    for (let i = 0; i < data.length; i += 4) {
+      data[i]     = (data[i] - KEY + 256) % 256;
+      data[i + 1] = (data[i + 1] - KEY + 256) % 256;
+      data[i + 2] = (data[i + 2] - KEY + 256) % 256;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    encryptCount--;
+    console.log("Remaining encryptions:", encryptCount);
+  }
+
+  function downloadImage() {
+    const link = document.createElement('a');
+    link.download = 'image.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  }
+</script>
+
+
+</body>
+</html>
+
