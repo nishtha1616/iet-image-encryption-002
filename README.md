@@ -36,7 +36,6 @@ Built using **HTML, CSS, and JavaScript** – no backend, just run in any browse
 
 - HTML5 Canvas API
 - JavaScript ES6
-- CSS3 (Neon theme + responsive layout)
 
 ---
 
@@ -44,4 +43,5 @@ Built using **HTML, CSS, and JavaScript** – no backend, just run in any browse
 
 1. **Clone or Download** the repository:
    git clone https://github.com/nishtha1616/iet-image-encryption-002.git
+
    image-encryotion-tool.html
