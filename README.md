@@ -44,4 +44,4 @@ Built using **HTML, CSS, and JavaScript** – no backend, just run in any browse
 
 1. **Clone or Download** the repository:
    git clone https://github.com/nishtha1616/iet-image-encryption-002.git
-   cd image-encryption-tool
+   image-encryotion-tool.html
